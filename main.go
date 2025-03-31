@@ -56,6 +56,17 @@ func PostUsers(w http.ResponseWriter, r *http.Request){
 	// ВОТ ТУТ Я ТЕБЕ ДОЛЖЕН ПРЕЕДАТЬ temp - это структура, которая получилась при чтении json
 }
 
+
+func PostBooks(w http.ResponseWriter, r *http.Request){
+	var temp models.Book
+	err := json.NewDecoder(r.Body).Decode(&temp)
+    if err != nil {
+        http.Error(w, err.Error(), http.StatusBadRequest)
+        return
+    }
+	// ВОТ ТУТ Я ТЕБЕ ДОЛЖЕН ПРЕЕДАТЬ temp - это структура, которая получилась при чтении json
+}
+
 func main() {
 	storage.Books["0"] = models.Book{Title: "Первая книга"}
 	storage.Books["1"] = models.Book{Title: "Вторая книга"}
@@ -67,9 +78,9 @@ func main() {
 
 	r.HandleFunc("/", HomeHandler)                              // OK
 	r.HandleFunc("/users/{id}", GetUsersHandler).Methods("GET") // OK
-	// r.HandleFunc("/users", ?).Methods("POST")
+	r.HandleFunc("/users", PostUsers).Methods("POST")
 	r.HandleFunc("/books", GetAllBooksHandler).Methods("GET") // OK
-	// r.HandleFunc("/books", ?).Methods("POST")
+	r.HandleFunc("/books", PostBooks).Methods("POST")
 	r.HandleFunc("/books/{id}", GetBooksHandler).Methods("GET") // OK
 
 	fmt.Println("Server listening...")
