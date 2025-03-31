@@ -36,12 +36,7 @@ func Get_json_books_id(id string) ([]byte, string) { //GET /books/{id}
 	return data, "200"
 }
 
-func Post_json_users(id string, data []byte) ([]byte, string) {
-	new_user := models.User{}
-	err := json.Unmarshal(data, &new_user)
-	if err != nil {
-		return nil, "400 bad request"
-	}
+func Post_json_users(id string, new_user models.User) ([]byte, string) {
 	s := new_user.Email
 	flag := false
 	for i := 0; i < len(s); i++ {
@@ -57,12 +52,7 @@ func Post_json_users(id string, data []byte) ([]byte, string) {
 	return Get_json_id(id), "201 Created"
 }
 
-func Post_json_books(id string, data []byte) ([]byte, string) {
-	new_book := models.Book{}
-	err := json.Unmarshal(data, &new_book)
-	if err != nil {
-		return nil, "400 bad request"
-	}
+func Post_json_books(id string, new_book models.Book) ([]byte, string) {
 	storage.Books[id] = new_book
 	return Get_json_id(id), "201 Created"
 }
