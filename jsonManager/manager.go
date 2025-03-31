@@ -1,14 +1,13 @@
 package jsonManager
 
 import (
-	"fmt"
-	"encoding/json"
 	"Sinekod/models"
 	"Sinekod/storage"
+	"encoding/json"
+	"fmt"
 )
 
-
-func Get_json_id(id string) []byte {		 //любой вывод json id
+func Get_json_id(id string) []byte { //любой вывод json id
 	var choto = map[string]string{"id": id}
 	data, err := json.Marshal(choto)
 	if err != nil {
@@ -17,7 +16,7 @@ func Get_json_id(id string) []byte {		 //любой вывод json id
 	return data
 }
 
-func Get_json_books() []byte { 		//GET /books
+func Get_json_books() []byte { //GET /books
 	data, err := json.Marshal(storage.Books)
 	if err != nil {
 		fmt.Println(err)
@@ -25,7 +24,7 @@ func Get_json_books() []byte { 		//GET /books
 	return data
 }
 
-func Get_json_books_id(id string) ([]byte, string) {		 //GET /books/{id}
+func Get_json_books_id(id string) ([]byte, string) { //GET /books/{id}
 	value, ok := storage.Books[id]
 	if !ok {
 		return nil, "404 not found"
@@ -40,18 +39,18 @@ func Get_json_books_id(id string) ([]byte, string) {		 //GET /books/{id}
 func Post_json_users(id string, data []byte) ([]byte, string) {
 	new_user := models.User{}
 	err := json.Unmarshal(data, &new_user)
-	if err != nil{
+	if err != nil {
 		fmt.Println(err)
 	}
 	s := new_user.Email
 	flag := false
-	for i := 0;i < len(s); i++{
-		if string(s[i]) == "@"{
+	for i := 0; i < len(s); i++ {
+		if string(s[i]) == "@" {
 			flag = true
 			break
 		}
 	}
-	if !flag{
+	if !flag {
 		fmt.Println("Некорректный email")
 	}
 	storage.Users[id] = new_user
@@ -61,7 +60,7 @@ func Post_json_users(id string, data []byte) ([]byte, string) {
 func Post_json_books(id string, data []byte) ([]byte, string) {
 	new_book := models.Book{}
 	err := json.Unmarshal(data, &new_book)
-	if err != nil{
+	if err != nil {
 		fmt.Println(err)
 	}
 	storage.Books[id] = new_book
