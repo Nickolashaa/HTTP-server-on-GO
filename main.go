@@ -13,6 +13,8 @@ import (
 	"Sinekod/jsonManager"
 
 	"encoding/json"
+
+	"io"
 )
 
 // Старовая страница
@@ -45,25 +47,32 @@ func GetAllBooksHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write(response)
 }
 
-
-func PostUsers(w http.ResponseWriter, r *http.Request){
-	var temp models.User
-	err := json.NewDecoder(r.Body).Decode(&temp)
-    if err != nil {
+func PostUsers(w http.ResponseWriter, r *http.Request) {
+	jsonBytes, err := io.ReadAll(r.Body)
+	if err != nil {
         http.Error(w, err.Error(), http.StatusBadRequest)
         return
     }
+	defer r.Body.Close()
+	var temp models.User
+    if err := json.Unmarshal(jsonBytes, &temp); err != nil {
+        http.Error(w, err.Error(), http.StatusBadRequest)
+        return
+    }
+
+	jsonManager.Post_json_users("4", jsonBytes)
+	
+
 	// ВОТ ТУТ Я ТЕБЕ ДОЛЖЕН ПРЕЕДАТЬ temp - это структура, которая получилась при чтении json
 }
 
-
-func PostBooks(w http.ResponseWriter, r *http.Request){
+func PostBooks(w http.ResponseWriter, r *http.Request) {
 	var temp models.Book
 	err := json.NewDecoder(r.Body).Decode(&temp)
-    if err != nil {
-        http.Error(w, err.Error(), http.StatusBadRequest)
-        return
-    }
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
 	// ВОТ ТУТ Я ТЕБЕ ДОЛЖЕН ПРЕЕДАТЬ temp - это структура, которая получилась при чтении json
 }
 
