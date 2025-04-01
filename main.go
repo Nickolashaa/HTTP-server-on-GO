@@ -14,21 +14,18 @@ import (
 	"Sinekod/jsonManager"
 
 	"encoding/json"
-	
 )
 
-// Старовая страница
 func HomeHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "Hello, World")
 	w.WriteHeader(http.StatusOK)
 }
 
-// GET для пользователей
 func GetUsersHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id := vars["id"]
 	idInt, err := strconv.Atoi(id)
-	if err != nil{
+	if err != nil {
 		w.WriteHeader(http.StatusNotFound)
 		return
 	}
@@ -42,7 +39,7 @@ func GetBooksHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id := vars["id"]
 	idInt, err := strconv.Atoi(id)
-	if err != nil{
+	if err != nil {
 		w.WriteHeader(http.StatusNotFound)
 		return
 	}
