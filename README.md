@@ -141,5 +141,6 @@ curl -X POST http://localhost:8080/books -H "Content-Type: application/json" -d 
 
 ## ✒️ Автор
 
-Разработчик: [Anti6eptik](https://github.com/Anti6eptik)  
-Оригинальный репозиторий: [Nickolashaa](https://github.com/Nickolashaa)
+Разработчики:
+[Anti6eptik](https://github.com/Anti6eptik)  
+[Nickolashaa](https://github.com/Nickolashaa)
