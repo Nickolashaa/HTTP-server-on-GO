@@ -7,8 +7,8 @@ import (
 	"fmt"
 )
 
-func Get_json_id(id string) []byte { //любой вывод json id
-	var choto = map[string]string{"id": id}
+func Get_json_id(id int) []byte { //любой вывод json id
+	var choto = map[string]int{"id": id}
 	data, err := json.Marshal(choto)
 	if err != nil {
 		fmt.Println(err)
@@ -24,10 +24,10 @@ func Get_json_books() []byte { //GET /books
 	return data
 }
 
-func Get_json_books_id(id string) ([]byte, string) { //GET /books/{id}
+func Get_json_books_id(id int) ([]byte, string) { //GET /books/{id}
 	value, ok := storage.Books[id]
 	if !ok {
-		return nil, "404 not found"
+		return nil, "404"
 	}
 	data, err := json.Marshal(value)
 	if err != nil {
@@ -36,7 +36,7 @@ func Get_json_books_id(id string) ([]byte, string) { //GET /books/{id}
 	return data, "200"
 }
 
-func Post_json_users(id string, new_user models.User) ([]byte, string) {
+func Post_json_users(id int, new_user models.User) ([]byte, string) {
 	s := new_user.Email
 	flag := false
 	for i := 0; i < len(s); i++ {
@@ -46,13 +46,13 @@ func Post_json_users(id string, new_user models.User) ([]byte, string) {
 		}
 	}
 	if !flag {
-		return nil, "400 bad request"
+		return nil, "400"
 	}
 	storage.Users[id] = new_user
-	return Get_json_id(id), "201 Created"
+	return Get_json_id(id), "201"
 }
 
-func Post_json_books(id string, new_book models.Book) ([]byte, string) {
+func Post_json_books(id int, new_book models.Book) ([]byte, string) {
 	storage.Books[id] = new_book
-	return Get_json_id(id), "201 Created"
+	return Get_json_id(id), "201"
 }

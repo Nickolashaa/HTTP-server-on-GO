@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"net/http"
+	"strconv"
 
 	"github.com/gorilla/mux"
 
@@ -13,36 +14,51 @@ import (
 	"Sinekod/jsonManager"
 
 	"encoding/json"
+	
 )
 
 // Старовая страница
 func HomeHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "Hello, World")
+	w.WriteHeader(http.StatusOK)
 }
 
 // GET для пользователей
 func GetUsersHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id := vars["id"]
-	response := jsonManager.Get_json_id(id)
+	idInt, err := strconv.Atoi(id)
+	if err != nil{
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+	response := jsonManager.Get_json_id(idInt)
 	w.Write(response)
+	w.WriteHeader(http.StatusOK)
 
 }
 
 func GetBooksHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id := vars["id"]
-	response, code := jsonManager.Get_json_books_id(id)
+	idInt, err := strconv.Atoi(id)
+	if err != nil{
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+	response, code := jsonManager.Get_json_books_id(idInt)
 	if code == "200" {
 		w.Write(response)
+		w.WriteHeader(http.StatusOK)
 	} else {
-		fmt.Fprintf(w, code)
+		w.WriteHeader(http.StatusNotFound)
 	}
 }
 
 func GetAllBooksHandler(w http.ResponseWriter, r *http.Request) {
 	response := jsonManager.Get_json_books()
 	w.Write(response)
+	w.WriteHeader(http.StatusOK)
 }
 
 func PostUsers(w http.ResponseWriter, r *http.Request) {
@@ -53,7 +69,16 @@ func PostUsers(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// ВОТ ТУТ Я ТЕБЕ ДОЛЖЕН ПРЕЕДАТЬ temp - это структура, которая получилась при чтении json
+	id := storage.IdUser
+	storage.IdUser += 1
+	array, code := jsonManager.Post_json_users(id, temp)
+	if code == "201" {
+		w.Write(array)
+		w.WriteHeader(http.StatusCreated)
+	} else {
+		w.WriteHeader(http.StatusBadRequest)
+	}
+
 }
 
 func PostBooks(w http.ResponseWriter, r *http.Request) {
@@ -63,16 +88,19 @@ func PostBooks(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	// ВОТ ТУТ Я ТЕБЕ ДОЛЖЕН ПРЕЕДАТЬ temp - это структура, которая получилась при чтении json
+
+	id := storage.IdBook
+	storage.IdBook += 1
+	array, code := jsonManager.Post_json_books(id, temp)
+	if code == "201" {
+		w.Write(array)
+		w.WriteHeader(http.StatusCreated)
+	} else {
+		w.WriteHeader(http.StatusBadRequest)
+	}
 }
 
 func main() {
-	storage.Books["0"] = models.Book{Title: "Первая книга"}
-	storage.Books["1"] = models.Book{Title: "Вторая книга"}
-	storage.Books["2"] = models.Book{Title: "Третья книга"}
-	storage.Users["0"] = models.User{Name: "Николай", Email: "gracevnikolaj220@gmail.com"}
-	storage.Users["1"] = models.User{Name: "Тимофей", Email: "TIMAK435@gmail.com"}
-
 	r := mux.NewRouter()
 
 	r.HandleFunc("/", HomeHandler)                              // OK
@@ -84,5 +112,4 @@ func main() {
 
 	fmt.Println("Server listening...")
 	http.ListenAndServe(":8080", r)
-
 }
