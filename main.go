@@ -7,13 +7,7 @@ import (
 
 	"github.com/gorilla/mux"
 
-	"Sinekod/models"
-
-	"Sinekod/storage"
-
 	"Sinekod/jsonManager"
-
-	"encoding/json"
 )
 
 func HomeHandler(w http.ResponseWriter, r *http.Request) {
@@ -59,16 +53,7 @@ func GetAllBooksHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func PostUsers(w http.ResponseWriter, r *http.Request) {
-	var temp models.User
-	err := json.NewDecoder(r.Body).Decode(&temp)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-
-	id := storage.IdUser
-	storage.IdUser += 1
-	array, code := jsonManager.Post_json_users(id, temp)
+	array, code := jsonManager.Post_json_users(r)
 	if code == "201" {
 		w.Write(array)
 		w.WriteHeader(http.StatusCreated)
@@ -79,16 +64,8 @@ func PostUsers(w http.ResponseWriter, r *http.Request) {
 }
 
 func PostBooks(w http.ResponseWriter, r *http.Request) {
-	var temp models.Book
-	err := json.NewDecoder(r.Body).Decode(&temp)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-
-	id := storage.IdBook
-	storage.IdBook += 1
-	array, code := jsonManager.Post_json_books(id, temp)
+	
+	array, code := jsonManager.Post_json_books(r)
 	if code == "201" {
 		w.Write(array)
 		w.WriteHeader(http.StatusCreated)

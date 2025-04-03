@@ -1,10 +1,12 @@
 package jsonManager
 
 import (
-	"Sinekod/models"
-	"Sinekod/storage"
+	"database/sql"
 	"encoding/json"
 	"fmt"
+	"net/http"
+
+	_ "modernc.org/sqlite"
 )
 
 func Get_json_id(id int) []byte { //любой вывод json id
@@ -17,7 +19,34 @@ func Get_json_id(id int) []byte { //любой вывод json id
 }
 
 func Get_json_books() []byte { //GET /books
-	data, err := json.Marshal(storage.Books)
+	var temp []struct {
+		Id    int
+		Title string
+	}
+	db, err := sql.Open("sqlite", "db/database.db")
+	if err != nil {
+		panic(err)
+	}
+	defer db.Close()
+	rows, err := db.Query("SELECT * FROM Books")
+	if err != nil {
+		panic(err)
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var b struct {
+			Id    int
+			Title string
+		}
+		err := rows.Scan(&b.Id, &b.Title)
+		if err != nil {
+			fmt.Println(err)
+			continue
+		}
+		temp = append(temp, b)
+	}
+	data, err := json.Marshal(temp)
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -25,18 +54,46 @@ func Get_json_books() []byte { //GET /books
 }
 
 func Get_json_books_id(id int) ([]byte, string) { //GET /books/{id}
-	value, ok := storage.Books[id]
-	if !ok {
-		return nil, "404"
-	}
-	data, err := json.Marshal(value)
+	db, err := sql.Open("sqlite", "db/database.db")
 	if err != nil {
-		fmt.Println(err)
+		panic(err)
 	}
-	return data, "200"
+	defer db.Close()
+	rows, err := db.Query("SELECT * FROM Books")
+	if err != nil {
+		panic(err)
+	}
+	defer rows.Close()
+	var temp struct {
+		Id    int
+		Title string
+	}
+	for rows.Next() {
+		err := rows.Scan(&temp.Id, &temp.Title)
+		if err != nil {
+			fmt.Println(err)
+			continue
+		}
+		if temp.Id == id {
+			data, err := json.Marshal(temp)
+			if err != nil {
+				fmt.Println(err)
+			}
+			return data, "200"
+		}
+	}
+	return nil, "404"
 }
 
-func Post_json_users(id int, new_user models.User) ([]byte, string) {
+func Post_json_users(r *http.Request) ([]byte, string) {
+	var new_user struct {
+		Name  string
+		Email string
+	}
+	err := json.NewDecoder(r.Body).Decode(&new_user)
+	if err != nil {
+		return nil, "400"
+	}
 	s := new_user.Email
 	flag := false
 	for i := 0; i < len(s); i++ {
@@ -48,11 +105,43 @@ func Post_json_users(id int, new_user models.User) ([]byte, string) {
 	if !flag {
 		return nil, "400"
 	}
-	storage.Users[id] = new_user
-	return Get_json_id(id), "201"
+
+	db, err := sql.Open("sqlite", "db/database.db")
+	if err != nil {
+		panic(err)
+	}
+	defer db.Close()
+	result, err := db.Exec("INSERT INTO Users (Name, Email) VALUES ($1, $2)", new_user.Name, new_user.Email)
+	if err != nil {
+		panic(err)
+	}
+
+	id, _ := result.LastInsertId()
+
+	return Get_json_id(int(id)), "201"
+
 }
 
-func Post_json_books(id int, new_book models.Book) ([]byte, string) {
-	storage.Books[id] = new_book
-	return Get_json_id(id), "201"
+func Post_json_books(r *http.Request) ([]byte, string) {
+	var temp struct {
+		Title string
+	}
+	err := json.NewDecoder(r.Body).Decode(&temp)
+	if err != nil {
+		return nil, "400"
+	}
+
+	db, err := sql.Open("sqlite", "db/database.db")
+	if err != nil {
+		panic(err)
+	}
+	defer db.Close()
+	result, err := db.Exec("INSERT INTO Books (Title) VALUES ($1)", temp.Title)
+	if err != nil {
+		panic(err)
+	}
+
+	id, _ := result.LastInsertId()
+
+	return Get_json_id(int(id)), "201"
 }
