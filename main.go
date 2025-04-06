@@ -8,6 +8,12 @@ import (
 	"github.com/gorilla/mux"
 
 	"Sinekod/jsonManager"
+
+	"go.uber.org/dig"
+
+	"Sinekod/controller"
+	"Sinekod/repository"
+	"Sinekod/service"
 )
 
 func HomeHandler(w http.ResponseWriter, r *http.Request) {
@@ -64,7 +70,7 @@ func PostUsers(w http.ResponseWriter, r *http.Request) {
 }
 
 func PostBooks(w http.ResponseWriter, r *http.Request) {
-	
+
 	array, code := jsonManager.Post_json_books(r)
 	if code == "201" {
 		w.Write(array)
@@ -75,15 +81,24 @@ func PostBooks(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-	r := mux.NewRouter()
+	container := dig.New()
 
-	r.HandleFunc("/", HomeHandler)                              // OK
-	r.HandleFunc("/users/{id}", GetUsersHandler).Methods("GET") // OK
-	r.HandleFunc("/users", PostUsers).Methods("POST")
-	r.HandleFunc("/books", GetAllBooksHandler).Methods("GET") // OK
-	r.HandleFunc("/books", PostBooks).Methods("POST")
-	r.HandleFunc("/books/{id}", GetBooksHandler).Methods("GET") // OK
+	container.Provide(controller.NewController)
+	container.Provide(service.NewService)
+	container.Provide(repository.NewRepository)
 
-	fmt.Println("Server listening...")
-	http.ListenAndServe(":8080", r)
+	container.Invoke(func() {
+		r := mux.NewRouter()
+
+		r.HandleFunc("/", HomeHandler)
+		r.HandleFunc("/users/{id}", GetUsersHandler).Methods("GET")
+		r.HandleFunc("/users", PostUsers).Methods("POST")
+		r.HandleFunc("/books", GetAllBooksHandler).Methods("GET")
+		r.HandleFunc("/books", PostBooks).Methods("POST")
+		r.HandleFunc("/books/{id}", GetBooksHandler).Methods("GET")
+
+		fmt.Println("Server listening...")
+		http.ListenAndServe(":8080", r)
+	})
+
 }
