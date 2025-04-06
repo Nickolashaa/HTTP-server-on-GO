@@ -1,0 +1,36 @@
+func GetUsersHandler(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	id := vars["id"]
+	idInt, err := strconv.Atoi(id)
+	if err != nil {
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+	response := jsonManager.Get_json_id(idInt)
+	w.Write(response)
+	w.WriteHeader(http.StatusOK)
+
+}
+
+func GetBooksHandler(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	id := vars["id"]
+	idInt, err := strconv.Atoi(id)
+	if err != nil {
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+	response, code := jsonManager.Get_json_books_id(idInt)
+	if code == "200" {
+		w.Write(response)
+		w.WriteHeader(http.StatusOK)
+	} else {
+		w.WriteHeader(http.StatusNotFound)
+	}
+}
+
+func GetAllBooksHandler(w http.ResponseWriter, r *http.Request) {
+	response := jsonManager.Get_json_books()
+	w.Write(response)
+	w.WriteHeader(http.StatusOK)
+}
