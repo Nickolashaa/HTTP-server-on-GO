@@ -13,8 +13,6 @@ import (
 	"Sinekod/service"
 )
 
-
-
 func main() {
 	container := dig.New()
 
@@ -27,11 +25,11 @@ func main() {
 		r := mux.NewRouter()
 
 		r.HandleFunc("/", controller.HomeHandler)
-		//r.HandleFunc("/users/{id}", GetUsersHandler).Methods("GET")
+		r.HandleFunc("/users/{id}", controller.GetUsersId).Methods("GET")
 		r.HandleFunc("/users", controller.PostUsers).Methods("POST")
-		//r.HandleFunc("/books", GetAllBooksHandler).Methods("GET")
+		r.HandleFunc("/books", controller.GetAllBooks).Methods("GET")
 		r.HandleFunc("/books", controller.PostBooks).Methods("POST")
-		//r.HandleFunc("/books/{id}", GetBooksHandler).Methods("GET")
+		r.HandleFunc("/books/{id}", controller.GetBookById).Methods("GET")
 
 		fmt.Println("Server listening...")
 		http.ListenAndServe(":8080", r)

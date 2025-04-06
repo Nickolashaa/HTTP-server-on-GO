@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"net/http"
 
-	
 	"Sinekod/repository"
 )
 
@@ -18,7 +17,6 @@ func NewService(repo *repository.Repository) *Service {
 		repository: repo,
 	}
 }
-
 
 func (srv Service) Get_json_id(id int) []byte { //любой вывод json id
 	var choto = map[string]int{"id": id}
@@ -67,4 +65,25 @@ func (srv Service) Post_json_books(r *http.Request) ([]byte, string) {
 	id := srv.repository.Post_json_books(temp)
 
 	return srv.Get_json_id(id), "201"
+}
+
+func (srv Service) GetAllBooks() []byte {
+	data := srv.repository.GetAllBooks()
+	array, err := json.Marshal(data)
+	if err != nil {
+		panic(err)
+	}
+	return array
+}
+
+func (srv Service) GetBookById(id int) ([]byte, string) {
+	data := srv.repository.GetBookById(id)
+	if data.Id == -1 {
+		return nil, "404"
+	}
+	array, err := json.Marshal(data)
+	if err != nil {
+		panic(err)
+	}
+	return array, "200"
 }

@@ -2,6 +2,7 @@ package repository
 
 import (
 	"database/sql"
+	"fmt"
 
 	_ "modernc.org/sqlite"
 )
@@ -46,4 +47,61 @@ func (r Repository) Post_json_books(temp struct {
 	}
 	id, _ := result.LastInsertId()
 	return int(id)
+}
+
+func (r Repository) GetAllBooks() []struct {
+	Id    int
+	Title string
+} {
+	rows, err := r.DB.Query("select * from Books")
+	if err != nil {
+		panic(err)
+	}
+	defer rows.Close()
+
+	var Temp struct {
+		Id    int
+		Title string
+	}
+
+	var result []struct {
+		Id    int
+		Title string
+	}
+
+	for rows.Next() {
+		rows.Scan(&Temp.Id, &Temp.Title)
+		result = append(result, Temp)
+	}
+
+	return result
+}
+
+func (r Repository) GetBookById(id int) struct {
+	Id    int
+	Title string
+} {
+	rows, err := r.DB.Query("SELECT * from Books")
+	if err != nil {
+		panic(err)
+	}
+	defer rows.Close()
+	var temp struct {
+		Id    int
+		Title string
+	}
+	for rows.Next() {
+		err := rows.Scan(&temp.Id, &temp.Title)
+		if err != nil {
+			fmt.Println(err)
+			continue
+		}
+		if temp.Id == id {
+			return temp
+		}
+	}
+	return struct {
+		Id    int
+		Title string
+	}{Id: -1, Title: "None"}
 }
