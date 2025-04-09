@@ -30,6 +30,7 @@ func main() {
 		r.HandleFunc("/books", controller.GetAllBooks).Methods("GET")
 		r.HandleFunc("/books", controller.PostBooks).Methods("POST")
 		r.HandleFunc("/books/{id}", controller.GetBookById).Methods("GET")
+		r.HandleFunc("/books/{id}", controller.DeleteBookId).Methods("DELETE")
 
 		fmt.Println("Server listening...")
 		http.ListenAndServe(":8080", r)

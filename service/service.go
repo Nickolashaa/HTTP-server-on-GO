@@ -87,3 +87,11 @@ func (srv Service) GetBookById(id int) ([]byte, string) {
 	}
 	return array, "200"
 }
+
+func (srv Service) DeleteBookId(id int) string {
+	affected := srv.repository.DeleteBookId(id)
+	if affected == 0 {
+		return "404"
+	}
+	return "200"
+}
