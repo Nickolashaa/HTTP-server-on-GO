@@ -29,6 +29,7 @@ func main() {
 		r.HandleFunc("/users", controller.PostUsers).Methods("POST")
 		r.HandleFunc("/books", controller.GetAllBooks).Methods("GET")
 		r.HandleFunc("/books", controller.PostBooks).Methods("POST")
+		r.HandleFunc("/books", controller.DeleteBook).Methods("DELETE")
 		r.HandleFunc("/books/{id}", controller.GetBookById).Methods("GET")
 		r.HandleFunc("/books/{id}", controller.DeleteBookId).Methods("DELETE")
 

@@ -95,3 +95,18 @@ func (srv Service) DeleteBookId(id int) string {
 	}
 	return "200"
 }
+
+func (srv Service) DeleteBook(r *http.Request) string {
+	var temp struct {
+		Title string
+	}
+	err := json.NewDecoder(r.Body).Decode(&temp)
+	if err != nil {
+		return "400"
+	}
+	affected := srv.repository.DeleteBook(temp)
+	if affected == 0 {
+		return "400"
+	}
+	return "200"
+}

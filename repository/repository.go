@@ -117,3 +117,15 @@ func (r Repository) DeleteBookId(id int) int {
 	}
 	return int(affected)
 }
+
+func (r Repository) DeleteBook(temp struct{ Title string }) int {
+	result, err := r.DB.Exec("DELETE FROM Books WHERE Title = ($1)", temp.Title)
+	if err != nil {
+		panic(err)
+	}
+	affected, err := result.RowsAffected()
+	if err != nil {
+		panic(err)
+	}
+	return int(affected)
+}
