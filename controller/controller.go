@@ -79,3 +79,30 @@ func (c Controller) GetBookById(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusNotFound)
 	}
 }
+
+func (c Controller) DeleteBookId(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	id := vars["id"]
+	idInt, err := strconv.Atoi(id)
+	if err != nil {
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+	code := c.Service.DeleteBookId(idInt)
+	if code == "200" {
+		fmt.Fprintf(w, "Book with this id was successfully deleted")
+		w.WriteHeader(http.StatusOK)
+	} else {
+		w.WriteHeader(http.StatusNotFound)
+	}
+}
+
+func (c Controller) DeleteBook(w http.ResponseWriter, r *http.Request) {
+	code := c.Service.DeleteBook(r)
+	if code == "200" {
+		fmt.Fprintf(w, "Book with this title was successfully deleted")
+		w.WriteHeader(http.StatusOK)
+	} else {
+		w.WriteHeader(http.StatusNotFound)
+	}
+}
